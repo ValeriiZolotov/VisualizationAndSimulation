@@ -99,7 +99,7 @@ void TriangleSurface::init(GLint matrixUniform)
     initializeOpenGLFunctions();
 
     mMatrixUniform = matrixUniform;
-
+    mMatrix.scale(2.f);
     //Vertex Array Object - VAO
     glGenVertexArrays( 1, &mVAO );
     glBindVertexArray( mVAO );
@@ -137,8 +137,6 @@ void TriangleSurface::draw()
     glBindVertexArray(0);
 
     glBindVertexArray( mVAO );
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    //glDrawArrays(GL_TRIANGLES, 0, mVertices.size());
-    glDrawElements(GL_LINES, mIndices.size(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }

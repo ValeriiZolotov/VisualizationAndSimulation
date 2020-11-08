@@ -129,13 +129,6 @@ void RenderWindow::render()
 
     /*Camera stuffs*/
 
-    QMatrix4x4 projectionMatrix;
-    projectionMatrix.setToIdentity();
-    projectionMatrix.perspective(45.f,width()/height(),0.1f,100.f);
-    QMatrix4x4 viewMatrix;
-    viewMatrix.setToIdentity();
-    viewMatrix.lookAt(vec3(10.f,10.f,10.f),vec3(0.f,0.f,0.f),vec3(0.f,1.f,0.f));
-
     mCamera->perspective(width()/height());
     mCamera->lookAt();
 
@@ -161,7 +154,15 @@ void RenderWindow::render()
         object->draw();
     }
 
-
+    glPointSize(5);
+    glBegin(GL_POINTS);
+        glColor3d(1,0,0);
+        glVertex3d(-2,4,0); // первая точка
+        glColor3d(0,1,0);
+        glVertex3d(-1,4,0);   // вторая точка
+        glColor3d(0,0,1);     // третье
+        glVertex3d(0,4,0);
+    glEnd();
 
 
     //using our expanded OpenGL debugger to check if everything is OK.
@@ -263,29 +264,29 @@ void RenderWindow::startOpenGLDebugger()
 void RenderWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_D)
-        {
-            mCamera->moveRight();
+    {
+        mCamera->moveRight();
 
-        }
-        if (event->key() == Qt::Key_A)
-        {
-            mCamera->moveLeft();
-        }
-        if (event->key() == Qt::Key_W)
-        {
-            mCamera->moveForward();
-        }
-        if (event->key() == Qt::Key_S)
-        {
-            mCamera->moveBackward();
-        }
-        if (event->key() == Qt::Key_E)
-        {
-            mCamera->moveUp();
-        }
-        if (event->key() == Qt::Key_Q)
-        {
-            mCamera->moveDown();
-        }
-        event->accept();
+    }
+    if (event->key() == Qt::Key_A)
+    {
+        mCamera->moveLeft();
+    }
+    if (event->key() == Qt::Key_W)
+    {
+        mCamera->moveForward();
+    }
+    if (event->key() == Qt::Key_S)
+    {
+        mCamera->moveBackward();
+    }
+    if (event->key() == Qt::Key_E)
+    {
+        mCamera->moveUp();
+    }
+    if (event->key() == Qt::Key_Q)
+    {
+        mCamera->moveDown();
+    }
+    event->accept();
 }
