@@ -5,11 +5,23 @@
 
 //Visual Studio 2017 - for some reason it does not like to include gl/GL.h
 #ifdef _WIN64
+
+#include <QVector4D>
+#include <QVector3D>
+#include <QVector2D>
+
 using GLfloat = float;
 using GLdouble = double;
 using GLint = int;
 using GLuint = unsigned int;
 using GLenum = unsigned int;
+
+
+typedef QVector4D vec4;
+typedef QVector3D vec3;
+typedef QVector2D vec2;
+typedef QVector2D point2D;
+typedef QVector3D point3D;
 #else
 
 //minGW on windows

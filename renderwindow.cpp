@@ -11,6 +11,7 @@
 #include "shader.h"
 #include "mainwindow.h"
 #include "grid.h"
+#include "trianglesurface.h"
 
 RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     : mContext(nullptr), mInitialized(false), mMainWindow(mainWindow)
@@ -28,6 +29,12 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
         mContext = nullptr;
         qDebug() << "Context could not be made - quitting this application";
     }
+
+    /*Camera settings*/
+    //0.811886f, 10.2819f, 4.64979f
+
+    mCamera = new Camera(vec3(0.811886f, 10.2819f, 4.64979f),vec3(0.f,1.f,0.f),90.f,-141.f,0.f);
+
 
 }
 
@@ -92,10 +99,13 @@ void RenderWindow::init()
     temp->init(mMatrixUniform);
     mObjectPool.emplace_back(temp);
 
-    temp = new OctahedronBall(3);
-    temp->init(1);
+    temp = new OctahedronBall(4);
+    temp->init(mMatrixUniform);
     mObjectPool.push_back(temp);
 
+    temp = new TriangleSurface("../VisualizationAndSimulation/Assets/datasett/oppgave_1.txt");
+    temp->init(mMatrixUniform);
+    mObjectPool.push_back(temp);
 
     //enable the matrixUniform
     // NB: enable in shader and in render() function also to use matrix
@@ -107,7 +117,17 @@ void RenderWindow::init()
 ///Called each frame - doing the rendering
 void RenderWindow::render()
 {
+
+
     mContext->makeCurrent(this); //must be called every frame (every time mContext->swapBuffers is called)
+
+    //This is just to support modern screens with "double" pixels
+    const qreal retinaScale = devicePixelRatio();
+    glViewport(0, 0, static_cast<GLint>(width() * retinaScale), static_cast<GLint>(height() * retinaScale));
+
+
+
+    /*Camera stuffs*/
 
     QMatrix4x4 projectionMatrix;
     projectionMatrix.setToIdentity();
@@ -116,26 +136,28 @@ void RenderWindow::render()
     viewMatrix.setToIdentity();
     viewMatrix.lookAt(vec3(10.f,10.f,10.f),vec3(0.f,0.f,0.f),vec3(0.f,1.f,0.f));
 
+    mCamera->perspective(width()/height());
+    mCamera->lookAt();
+
     initializeOpenGLFunctions();    //must call this every frame it seems...
 
     //to clear the screen for each redraw
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //what shader to use
-    glUseProgram(mShaderProgram->getProgram() );
+    glUseProgram(mShaderProgram->getProgram());
 
-    //what object to draw
-    glBindVertexArray( mVAO );
+
 
     //Since our shader uses a matrix and we rotate the triangle, we send the current matrix here
     //must be here to update each frame - if static object, it could be set only once
-    glUniformMatrix4fv( mPMatrixUniform, 1, GL_FALSE, projectionMatrix.constData());
-    glUniformMatrix4fv( mVMatrixUniform, 1, GL_FALSE, viewMatrix.constData());
+    glUniformMatrix4fv( mPMatrixUniform, 1, GL_FALSE, mCamera->getProjectionMatrix().constData());
+    glUniformMatrix4fv( mVMatrixUniform, 1, GL_FALSE, mCamera->getViewMatrix().constData());
 
     /*Render loop*/
     for(auto object: mObjectPool)
     {
-        glUniformMatrix4fv( mMatrixUniform, 1, GL_FALSE, object->get_mMatrix().constData());
+        glUniformMatrix4fv(mMatrixUniform, 1, GL_FALSE, object->get_mMatrix().constData());
         object->draw();
     }
 
@@ -161,9 +183,7 @@ void RenderWindow::exposeEvent(QExposeEvent *)
     if (!mInitialized)
         init();
 
-    //This is just to support modern screens with "double" pixels
-    const qreal retinaScale = devicePixelRatio();
-    glViewport(0, 0, static_cast<GLint>(width() * retinaScale), static_cast<GLint>(height() * retinaScale));
+
 
     //If the window actually is exposed to the screen we start the main loop
     //isExposed() is a function in QWindow
@@ -242,12 +262,30 @@ void RenderWindow::startOpenGLDebugger()
 /// Updates the statusbar in the program
 void RenderWindow::keyPressEvent(QKeyEvent *event)
 {
-    if(event->key() == Qt::Key_A)
-    {
-        mMainWindow->statusBar()->showMessage(" AAAA");
-    }
-    if(event->key() == Qt::Key_S)
-    {
-        mMainWindow->statusBar()->showMessage(" SSSS");
-    }
+    if (event->key() == Qt::Key_D)
+        {
+            mCamera->moveRight();
+
+        }
+        if (event->key() == Qt::Key_A)
+        {
+            mCamera->moveLeft();
+        }
+        if (event->key() == Qt::Key_W)
+        {
+            mCamera->moveForward();
+        }
+        if (event->key() == Qt::Key_S)
+        {
+            mCamera->moveBackward();
+        }
+        if (event->key() == Qt::Key_E)
+        {
+            mCamera->moveUp();
+        }
+        if (event->key() == Qt::Key_Q)
+        {
+            mCamera->moveDown();
+        }
+        event->accept();
 }

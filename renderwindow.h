@@ -7,6 +7,7 @@
 #include <QTime>
 #include <vector>
 #include "visualobject.h"
+#include "camera.h"
 
 
 
@@ -66,6 +67,8 @@ private:
     void checkForGLerrors();
 
     std::vector<VisualObject*> mObjectPool;
+    float mAspectRation{0.f};
+    Camera* mCamera;
 
 
 protected:

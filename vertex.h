@@ -2,16 +2,9 @@
 #define VERTEX_H
 #include <iostream>
 #include <fstream>
-#include <QVector4D>
-#include <QVector3D>
-#include <QVector2D>
+
 #include "gltypes.h"
 
-typedef QVector4D vec4;
-typedef QVector3D vec3;
-typedef QVector2D vec2;
-typedef QVector2D point2D;
-typedef QVector3D point3D;
 
 class Vertex {
 public:
