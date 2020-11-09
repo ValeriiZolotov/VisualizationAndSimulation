@@ -242,9 +242,22 @@ void OctahedronBall::move(float dt)
         /*acceleration vector*/
         vec3 a = 9.8f*vec3(normal.x()*normal.y(),normal.y()*normal.y()-1,normal.z()*normal.y());
         a = a.normalized();
-        ds += dv*dt+(a*dt*dt)/2.f;
-        dv += v0+a*dt; //velocity is a change of position
+        ds += dv*dt+(a*dt*dt)/2.f; //velocity is a change of position
+        dv += v0+a*dt;
         mMatrix.translate(ds);
+        if(index!=mOldIndex)
+        {
+            qDebug()<<"B all e n har r u l l e t o ve r pa n y t t t r i a n g e l";
+            //x =old+new/abs(old+new);
+            vec3 oldNormal = m_tr->getTriangles().at(mOldIndex).m_a.getNormals();
+            vec3 newNormal = m_tr->getTriangles().at(index).m_a.getNormals();
+            vec3 newOldNormal = oldNormal+newNormal;
+            vec3 collisonNormal = newOldNormal/vec3(abs(newOldNormal.x()),abs(newOldNormal.y()),abs(newOldNormal.z()));
+            qDebug()<<collisonNormal;
+
+        }
+        mOldIndex = index;
+        mOldNormal = normal;
     }
 
 

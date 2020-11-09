@@ -21,7 +21,7 @@ private:
     int mitr;
     int i{1};
     TriangleSurface* m_tr;
-    vec3 mOdlNormal{0.f,1.f,0.f};
+    vec3 mOldNormal{0.f,1.f,0.f};
     int mOldIndex{0};
 
 public:
