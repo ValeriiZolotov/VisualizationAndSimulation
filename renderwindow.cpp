@@ -99,11 +99,11 @@ void RenderWindow::init()
     temp->init(mMatrixUniform);
     mObjectPool.emplace_back(temp);
 
-    temp = new OctahedronBall(4);
+    temp = new TriangleSurface("../VisualizationAndSimulation/Assets/datasett/oppgave_1.txt");
     temp->init(mMatrixUniform);
     mObjectPool.push_back(temp);
 
-    temp = new TriangleSurface("../VisualizationAndSimulation/Assets/datasett/oppgave_1.txt");
+    temp = new OctahedronBall(4,static_cast<TriangleSurface*>(mObjectPool.at(1)));
     temp->init(mMatrixUniform);
     mObjectPool.push_back(temp);
 
@@ -147,6 +147,7 @@ void RenderWindow::render()
     glUniformMatrix4fv( mPMatrixUniform, 1, GL_FALSE, mCamera->getProjectionMatrix().constData());
     glUniformMatrix4fv( mVMatrixUniform, 1, GL_FALSE, mCamera->getViewMatrix().constData());
 
+
     /*Render loop*/
     for(auto object: mObjectPool)
     {
@@ -154,15 +155,7 @@ void RenderWindow::render()
         object->draw();
     }
 
-    glPointSize(5);
-    glBegin(GL_POINTS);
-        glColor3d(1,0,0);
-        glVertex3d(-2,4,0); // первая точка
-        glColor3d(0,1,0);
-        glVertex3d(-1,4,0);   // вторая точка
-        glColor3d(0,0,1);     // третье
-        glVertex3d(0,4,0);
-    glEnd();
+
 
 
     //using our expanded OpenGL debugger to check if everything is OK.

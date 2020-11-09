@@ -30,8 +30,15 @@ public:
     void readFile(const QString filNavn);
     void init(GLint matrixUniform) override;
     void draw() override;
+    void toTriagles();
+    void setNormals();
+    std::vector<_Triangle>& getTriangles(){return mTriangles;}
+    int findBall(vec2 playerPosition);
+    void barycentricCoordinates(vec2 v1, vec2 v2, vec2 v3,vec2 playerPosition,vec3 *barycCoordinates);
 private:
     std::vector<int> mNeighbours;
+    std::vector<_Triangle> mTriangles;
+
 };
 
 #endif // TRIANGLESURFACE_H

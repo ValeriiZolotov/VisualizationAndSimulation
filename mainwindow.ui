@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -37,8 +37,20 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionstart_simulation"/>
+   <addaction name="actionstop_simulation"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionstart_simulation">
+   <property name="text">
+    <string>start_simulation</string>
+   </property>
+  </action>
+  <action name="actionstop_simulation">
+   <property name="text">
+    <string>stop_simulation</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

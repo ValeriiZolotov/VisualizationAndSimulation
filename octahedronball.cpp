@@ -22,7 +22,7 @@
 //! - n is the recursion level (number of repeated subdivisions)
 //!
 
-OctahedronBall::OctahedronBall(int n) : m_rekursjoner(n), m_indeks(0)
+OctahedronBall::OctahedronBall(int n,TriangleSurface* surface) : m_rekursjoner(n), m_indeks(0),m_tr(surface)
 {
     mVertices.reserve(3 * 8 * pow(4, m_rekursjoner));
     oktaederUnitBall();
@@ -133,7 +133,8 @@ void OctahedronBall::init(GLint matrixUniform)
 {
     mMatrixUniform = matrixUniform;
     initializeOpenGLFunctions();
-    //mMatrix.scale(-0.5,-0.5,-0.5);
+    //mMatrix.scale(0.5f,0.5f,0.5f);
+    mMatrix.translate(1.5f,4.f,-1.5f);
     //mPosition.translate(-2.5f,2.5f,0.5f);
     //mPosition.translate(mPath.at(mitr).getXYZ().x(),mPath.at(mitr).getXYZ().y(),mPath.at(mitr).getXYZ().z());
     //Vertex Array Object - VAO
@@ -172,13 +173,14 @@ void OctahedronBall::init(GLint matrixUniform)
 //!
 void OctahedronBall::draw()
 {
-//    mStart_speed-=0.001f;
-//    if(mStart_speed < 0 ){mStart_speed =0;}
-//    //move(mStart_speed);
-//    mitr=mitr+i;
-//    if(mitr>90 || mitr<=0)
-//        i=i*-1;
-//    move(0.000001f,0.f,0.0);
+    //    mStart_speed-=0.001f;
+    //    if(mStart_speed < 0 ){mStart_speed =0;}
+    //    //move(mStart_speed);
+    //    mitr=mitr+i;
+    //    if(mitr>90 || mitr<=0)
+    //        i=i*-1;
+    //    move(0.000001f,0.f,0.0);
+    move(.2f);
     glBindVertexArray( mVAO );
     //glUniformMatrix4fv( mMatrixUniform, 1, GL_FALSE, mMatrix.constData());
     glDrawArrays(GL_TRIANGLES, 0, mVertices.size());//mVertices.size());
@@ -214,6 +216,36 @@ void OctahedronBall::move(float x, float y, float z)
 
     mMatrix = mPosition*mRotation;
     */
+
+
+}
+
+void OctahedronBall::move(float dt)
+{
+    //get the position of the ball
+    vec2 ballPosition = vec2(mMatrix.column(3).x(),mMatrix.column(3).z());
+    //find triangel where the ball is placed
+    int index = m_tr->findBall(ballPosition);
+    /*velocity vector*/
+    vec3 dv = vec3(0.f,0.f,0.f);
+    vec3 v0 = vec3(0.f,0.f,0.f);
+    /*position vector*/
+    vec3 ds = vec3(0.f,0.f,0.f);
+
+    if(index==-1)
+    {
+        qDebug()<<"could not find ball"<<index;
+    }
+    else{
+        qDebug()<<"found on triangle "<<index;
+        vec3 normal = m_tr->getTriangles().at(index).m_a.getNormals();
+        /*acceleration vector*/
+        vec3 a = 9.8f*vec3(normal.x()*normal.y(),normal.y()*normal.y()-1,normal.z()*normal.y());
+        a = a.normalized();
+        ds += dv*dt+(a*dt*dt)/2.f;
+        dv += v0+a*dt; //velocity is a change of position
+        mMatrix.translate(ds);
+    }
 
 
 }
