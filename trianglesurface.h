@@ -19,6 +19,8 @@ struct _Triangle
     Vertex m_c;
     vec3 m_barycCoor;
     int m_id;
+    std::vector<int> m_neighbours;
+
 
 };
 
@@ -35,6 +37,8 @@ public:
     std::vector<_Triangle>& getTriangles(){return mTriangles;}
     int findBall(vec2 playerPosition);
     void barycentricCoordinates(vec2 v1, vec2 v2, vec2 v3,vec2 playerPosition,vec3 *barycCoordinates);
+    void generateSurface(int sizeX,int sizeY);
+    void setNeighbors();
 private:
     std::vector<int> mNeighbours;
     std::vector<_Triangle> mTriangles;

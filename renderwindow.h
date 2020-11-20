@@ -32,9 +32,10 @@ public:
     QOpenGLContext *context() { return mContext; }
     void exposeEvent(QExposeEvent *) override;
 
- void error(const QString &msg);
+    void error(const QString &msg);
 
- void setUpShader();
+    void setUpShader();
+    std::vector<VisualObject*>&getObjectPool(){return mObjectPool;}
 
 private slots:
     void render();
@@ -69,6 +70,7 @@ private:
     std::vector<VisualObject*> mObjectPool;
     float mAspectRation{0.f};
     Camera* mCamera;
+
 
 
 protected:

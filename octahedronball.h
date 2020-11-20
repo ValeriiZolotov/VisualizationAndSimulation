@@ -23,6 +23,8 @@ private:
     TriangleSurface* m_tr;
     vec3 mOldNormal{0.f,1.f,0.f};
     int mOldIndex{0};
+    vec3 mV{};
+
 
 public:
     OctahedronBall(int n = 0,TriangleSurface* surface = nullptr);

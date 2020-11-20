@@ -12,6 +12,7 @@
 #include "mainwindow.h"
 #include "grid.h"
 #include "trianglesurface.h"
+#include "bsplinecurve.h"
 
 RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     : mContext(nullptr), mInitialized(false), mMainWindow(mainWindow)
@@ -99,7 +100,7 @@ void RenderWindow::init()
     temp->init(mMatrixUniform);
     mObjectPool.emplace_back(temp);
 
-    temp = new TriangleSurface("../VisualizationAndSimulation/Assets/datasett/oppgave_1.txt");
+    temp = new TriangleSurface("../VisualizationAndSimulation/Assets/datasett/two_triangles.txt");
     temp->init(mMatrixUniform);
     mObjectPool.push_back(temp);
 
@@ -107,11 +108,27 @@ void RenderWindow::init()
     temp->init(mMatrixUniform);
     mObjectPool.push_back(temp);
 
+    std::vector<vec3> controllPoints{vec3(0.f,0.f,0.f), vec3(1.f,0.f,0.f), vec3(1.f,1.f,0.f),
+                                     vec3(0.f,1.f,0.f), vec3(0.f,0.f,0.f)}; //vec3(1.f,2.f,0.f),
+                                     //vec3(1.f,1.f,0.f), vec3(0.f,1.f,0.f), vec3(0.f,0.f,0.f)};
+
+    temp = new BSplineCurve(controllPoints,3);
+    temp->init(mMatrixUniform);
+    mObjectPool.push_back(temp);
+
+    /*terrain*/
+    temp = new TriangleSurface();
+    static_cast<TriangleSurface*>(temp)->generateSurface(10,10);
+    static_cast<TriangleSurface*>(temp)->toTriagles();
+    static_cast<TriangleSurface*>(temp)->setNeighbors();
+    temp->init(mMatrixUniform);
+    mObjectPool.push_back(temp);
     //enable the matrixUniform
     // NB: enable in shader and in render() function also to use matrix
     setUpShader();
 
     glBindVertexArray( 0 );
+
 }
 
 ///Called each frame - doing the rendering

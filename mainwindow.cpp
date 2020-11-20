@@ -3,7 +3,7 @@
 
 #include <QSurfaceFormat>
 #include <QDebug>
-
+#include "octahedronball.h"
 #include "renderwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -65,5 +65,11 @@ void MainWindow::init()
 
 void MainWindow::on_actionstart_simulation_triggered()
 {
+//    while(stopSimulation)
+//        static_cast<OctahedronBall*>(mRenderWindow->getObjectPool().at(2))->move(0.01f);
+}
 
+void MainWindow::on_actionstop_simulation_triggered()
+{
+    //stopSimulation=!stopSimulation;
 }

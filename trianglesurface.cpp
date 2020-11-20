@@ -135,7 +135,7 @@ void TriangleSurface::draw()
 {
     glBindVertexArray( mVAO );
 
-    glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_LINE_LOOP, mIndices.size(), GL_UNSIGNED_INT, nullptr);
     glPolygonOffset(10, 10);
     glDisable(GL_POLYGON_OFFSET_FILL);
     glBindVertexArray(0);
@@ -162,6 +162,7 @@ void TriangleSurface::toTriagles()
     }
 
 }
+//ddffsfs
 void TriangleSurface::setNormals()
 {
     for(unsigned long long int itr{0}; itr<mTriangles.size();++itr)
@@ -178,7 +179,7 @@ void TriangleSurface::setNormals()
         vec3 normal;
         normal = normal.crossProduct(e1,e2);
         //qDebug()<<"unnormilised normal for the triangle# "<<itr<<" "<<normal;
-        normal.normalize();
+        normal = normal.normalized();
         //qDebug()<<"normilised normal for the triangle# "<<itr<<" "<<normal;
         mTriangles.at(itr).m_a.set_normal(normal);
         mTriangles.at(itr).m_b.set_normal(normal);
@@ -189,7 +190,7 @@ void TriangleSurface::setNormals()
 
 int TriangleSurface::findBall(vec2 playerPosition)
 {
-    int itr = mTriangles.at(0).m_id;
+    int itr = 0;//mTriangles.at(0).m_id;
     bool found{false};
     for(auto triangle:mTriangles)
     {
@@ -202,7 +203,7 @@ int TriangleSurface::findBall(vec2 playerPosition)
                                     mTriangles.at(itr).m_c.getXYZ().z()),
                                playerPosition,
                                &baryc);
-
+        //qDebug()<<baryc;
         mTriangles.at(itr).m_barycCoor = baryc;
 
         if(baryc.x()>=0 && baryc.y()>=0 && baryc.z()>=0)
@@ -214,7 +215,7 @@ int TriangleSurface::findBall(vec2 playerPosition)
         }
         else
         {
-             ++itr;
+            ++itr;
         }
     }
     return -1;
@@ -245,6 +246,52 @@ void TriangleSurface::barycentricCoordinates(vec2 p1, vec2 p2, vec2 p3,vec2 play
     q = p2 - playerPosition;
     n = n.crossProduct(p,q);
     baryc->setZ(n.z() / areal_123);
+
+}
+
+void TriangleSurface::generateSurface(int sizeX,int sizeY)
+{
+    mVertices.reserve((sizeX+1)*(sizeY+1));
+    for (int y = -sizeY/2; y <= sizeY/2; y++) {
+        for (int x = -sizeX/2; x <= sizeX/2; x++) {
+            mVertices.push_back(Vertex(vec3(x,0.f,y),vec3(0.f,1.f,0.f),vec2(0.f,0.f)));
+        }
+    }
+
+    int indices[sizeX * sizeY * 6];
+    for (int ti = 0, vi = 0, y = 0; y < sizeY; y++, vi++) {
+        for (int x = 0; x < sizeX; x++, ti += 6, vi++) {
+            indices[ti] = vi;
+            indices[ti + 3] =  indices[ti + 2] = vi + 1;
+            indices[ti + 4] =  indices[ti + 1] = vi + sizeX + 1;
+            indices[ti + 5] = vi + sizeX + 2;
+        }
+    }
+    for(auto i:indices)
+        mIndices.push_back(i);
+}
+
+void TriangleSurface::setNeighbors()
+{
+    for(unsigned long long i{0};i<mTriangles.size();i++)
+    {
+        vec3 v0{mTriangles.at(i).m_a.getXYZ()};
+        vec3 v1{mTriangles.at(i).m_b.getXYZ()};
+        vec3 v2{mTriangles.at(i).m_c.getXYZ()};
+
+        for(unsigned long long k{0}; k<mTriangles.size();k++)
+        {
+            vec3 v{mTriangles.at(k).m_a.getXYZ()};
+            if(k!=i)
+            {
+                if (v == v0 || v == v1 || v == v2)
+                {
+                    mTriangles.at(i).m_neighbours.push_back(k);
+                }
+            }
+        }
+    }
+
 
 }
 

@@ -6,6 +6,7 @@ CONFIG      += c++11
 TARGET      = 3D-programming
 
 SOURCES += main.cpp \
+    bsplinecurve.cpp \
     camera.cpp \
     grid.cpp \
     octahedronball.cpp \
@@ -17,7 +18,9 @@ SOURCES += main.cpp \
     visualobject.cpp
 
 HEADERS += \
+    bsplinecurve.h \
     camera.h \
+    delaunator.h \
     gltypes.h \
     grid.h \
     octahedronball.h \
