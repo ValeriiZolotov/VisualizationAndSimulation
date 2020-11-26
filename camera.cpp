@@ -21,7 +21,7 @@ QMatrix4x4 Camera::getProjectionMatrix()const
 }
 
 
-void Camera::lookAt()
+void Camera::lookAt(vec3 position)
 {
 
     m_position = getCameraPosition();

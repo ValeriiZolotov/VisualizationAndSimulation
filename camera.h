@@ -35,7 +35,7 @@ public:
           m_front(vec3(0.f,0.f,-1.f)),m_movementSpeed(0.05f),m_turnSpeed(0.05f),m_fovy(60.f),m_right(vec3(1.0f,0.f,0.f)){update();}
     QMatrix4x4 getViewMatrix() const;
     QMatrix4x4 getProjectionMatrix() const;
-    void lookAt();
+    void lookAt(vec3 position);
     void perspective(float aspectRatio);
     void ortho();
     void frustum(float left, float right, float bottom, float top, float Cnear, float Cfar);

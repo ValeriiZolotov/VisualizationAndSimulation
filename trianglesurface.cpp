@@ -93,7 +93,7 @@ void TriangleSurface::readFile(const QString fileNavn)
 
     }
     file.close();
-    //toXZ();
+
 
 }
 void TriangleSurface::init(GLint matrixUniform)
@@ -133,18 +133,17 @@ void TriangleSurface::init(GLint matrixUniform)
 }
 void TriangleSurface::draw()
 {
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     glBindVertexArray( mVAO );
 
-    glDrawElements(GL_LINE_LOOP, mIndices.size(), GL_UNSIGNED_INT, nullptr);
-    glPolygonOffset(10, 10);
-    glDisable(GL_POLYGON_OFFSET_FILL);
-    glBindVertexArray(0);
+    glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray( mVAO );
     glPointSize(10.f);
     glDrawElements(GL_POINTS, mIndices.size(), GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
 }
 
@@ -188,19 +187,99 @@ void TriangleSurface::setNormals()
 
 }
 
+void TriangleSurface::scaleTerrainData(std::vector<double>& XCoords,
+                                       std::vector<double>& YCoords,
+                                       std::vector<double>& heights)
+{
+        auto [minX,maxX] = std::minmax_element(XCoords.begin(),XCoords.end());
+        auto [minY,maxY] = std::minmax_element(YCoords.begin(),YCoords.end());
+        auto [minZ,maxZ] = std::minmax_element(heights.begin(),heights.end());
+
+                //qDebug()<<"Min X"<<*minX<<" Max X"<<*maxX;
+                //qDebug()<<"Min Y"<<*minY<<" Max Y"<<*maxY;
+                //qDebug()<<"Min H"<<*minZ<<" Max H"<<*maxZ;
+
+
+
+                for(std::size_t i = 0;i<XCoords.size();i++)
+        {
+            double x,y;
+            scale(XCoords.at(i),*maxX,*minX,50,-50,
+                  YCoords.at(i),*maxY,*minY,50,-50
+                  ,x,y);
+            mCoords.push_back(x);
+            mCoords.push_back(y);
+        }
+
+        for(std::size_t i = 0;i<heights.size();i++)
+        {
+            mHeights.push_back(scale(heights.at(i),*maxZ,*minZ,10,-10));
+        }
+}
+
+void TriangleSurface::readLFile(const QString filNavn)
+{
+    QFile file(filNavn);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    QTextStream in(&file);
+
+    int lineItr{0};
+    Vertex vrt;
+
+    std::vector<double> XCoords;// for Delaunay algorithm
+    std::vector<double> YCoords;// for Delaunay algorithm
+    std::vector<double> heights;
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if(lineItr!=0)
+        {
+            if(lineItr%500 == 0)
+            {
+                QStringList strList;
+                strList = line.split("\t");
+                XCoords.push_back(strList.at(0).toDouble()); // x
+                YCoords.push_back(strList.at(1).toDouble()); // y
+                heights.push_back(strList.at(2).toDouble());
+            }
+        }
+        ++lineItr;
+    }
+    file.close();
+    scaleTerrainData(XCoords,YCoords,heights);
+
+}
+
 int TriangleSurface::findBall(vec2 playerPosition)
 {
     int itr = 0;//mTriangles.at(0).m_id;
     bool found{false};
+
+    //vec3 baryc;
+
+    //    barycentricCoordinates(QVector2D(0,-4), QVector2D(4,-4),QVector2D(4,-1),
+    //                           QVector2D(3.21,-3.082),
+    //                           &baryc);
+
+    //    qDebug()<<baryc;
+
     for(auto triangle:mTriangles)
     {
         vec3 baryc;
+        //qDebug()<<playerPosition;
+        //        qDebug()<<vec2(mTriangles.at(itr).m_a.getXYZ().x(),
+        //                       mTriangles.at(itr).m_a.getXYZ().z())<<
+        //                  vec2(mTriangles.at(itr).m_b.getXYZ().x(),
+        //                       mTriangles.at(itr).m_b.getXYZ().z())<<
+        //                  vec2(mTriangles.at(itr).m_c.getXYZ().x(),
+        //                       mTriangles.at(itr).m_c.getXYZ().z());
+
         barycentricCoordinates(vec2(mTriangles.at(itr).m_a.getXYZ().x(),
                                     mTriangles.at(itr).m_a.getXYZ().z()),
-                               vec2(mTriangles.at(itr).m_b.getXYZ().x(),
-                                    mTriangles.at(itr).m_b.getXYZ().z()),
                                vec2(mTriangles.at(itr).m_c.getXYZ().x(),
                                     mTriangles.at(itr).m_c.getXYZ().z()),
+                               vec2(mTriangles.at(itr).m_b.getXYZ().x(),
+                                    mTriangles.at(itr).m_b.getXYZ().z()),
                                playerPosition,
                                &baryc);
         //qDebug()<<baryc;
@@ -220,7 +299,44 @@ int TriangleSurface::findBall(vec2 playerPosition)
     }
     return -1;
 }
+float TriangleSurface::findObject(vec2 position)
+{
+    int itr = 0;//mTriangles.at(0).m_id;
+    bool found{false};
+    float height{0.f};
 
+    for(auto triangle:mTriangles)
+    {
+        vec3 baryc;
+
+        barycentricCoordinates(vec2(mTriangles.at(itr).m_a.getXYZ().x(),
+                                    mTriangles.at(itr).m_a.getXYZ().z()),
+                               vec2(mTriangles.at(itr).m_c.getXYZ().x(),
+                                    mTriangles.at(itr).m_c.getXYZ().z()),
+                               vec2(mTriangles.at(itr).m_b.getXYZ().x(),
+                                    mTriangles.at(itr).m_b.getXYZ().z()),
+                               position,
+                               &baryc);
+        mTriangles.at(itr).m_barycCoor = baryc;
+
+        if(baryc.x()>=0 && baryc.y()>=0 && baryc.z()>=0)
+        {
+            found = true;
+            //qDebug()<<"found on triangle# "<<itr;
+            height = mTriangles.at(itr).m_a.getXYZ().y()*baryc.x()
+                    +mTriangles.at(itr).m_c.getXYZ().y()*baryc.y()
+                    +mTriangles.at(itr).m_b.getXYZ().y()*baryc.z();
+
+            return height;
+            break;
+        }
+        else
+        {
+            ++itr;
+        }
+    }
+    return 0.f;
+}
 void TriangleSurface::barycentricCoordinates(vec2 p1, vec2 p2, vec2 p3,vec2 playerPosition, vec3 *baryc)
 {
     vec2 p12 = p2-p1;
@@ -295,3 +411,42 @@ void TriangleSurface::setNeighbors()
 
 }
 
+void TriangleSurface::delaunay(const std::vector<double>& coord)
+{
+
+    //triangulation happens here
+    delaunator::Delaunator d(coord);
+
+    for(auto i:d.triangles)
+    {
+        mIndices.push_back(i);
+    }
+    for(std::size_t i = 0, h{0}; i < d.coords.size(); i+=2 , h++)
+    {
+        mVertices.push_back(Vertex(vec3(d.coords[i],mHeights.at(h),d.coords[i+1]),vec3(0.f,1.f,0.f),vec2(0.f,0.f)));
+    }
+
+    //    for(std::size_t i = 0; i < d.triangles.size(); i+=3) {
+    //        printf( "Triangle points: [[%f, %f], [%f, %f], [%f, %f]]\n",
+    //                d.coords[2 * d.triangles[i]],        //tx0
+    //                d.coords[2 * d.triangles[i] + 1],    //ty0
+    //                d.coords[2 * d.triangles[i + 1]],    //tx1
+    //                d.coords[2 * d.triangles[i + 1] + 1],//ty1
+    //                d.coords[2 * d.triangles[i + 2]],    //tx2
+    //                d.coords[2 * d.triangles[i + 2] + 1] //ty2
+    //                );
+    //    }
+
+}
+
+//Scales a float to an interval
+void TriangleSurface::scale(double x, double maxX, double minX, double maxXS, double minXS,
+                            double y, double maxY, double minY, double maxYS, double minYS,double &xNew,double &yNew)
+{
+    xNew = ((x-minX)/(maxX-minX))*(maxXS-minXS)+minXS;
+    yNew = ((y-minY)/(maxY-minY))*(maxYS-minYS)+minYS;
+}
+double TriangleSurface::scale(double x, double maxX, double minX, double maxXS, double minXS)
+{
+    return ((x-minX)/(maxX-minX))*(maxXS-minXS)+minXS;
+}

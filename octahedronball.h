@@ -1,6 +1,7 @@
 #ifndef OCTAHEDRONBALL_H
 #define OCTAHEDRONBALL_H
 #include "visualobject.h"
+#include "triangle.h"
 #include "trianglesurface.h"
 
 
@@ -23,8 +24,8 @@ private:
     TriangleSurface* m_tr;
     vec3 mOldNormal{0.f,1.f,0.f};
     int mOldIndex{0};
-    vec3 mV{};
-
+    vec3 mV{0.f,0.f,0.f};
+    Triangle* mTriangle;
 
 public:
     OctahedronBall(int n = 0,TriangleSurface* surface = nullptr);
@@ -33,6 +34,7 @@ public:
     virtual void draw() override;
     void move(float x, float y, float z) override;
     void move(float dt);
+    void setTriangle(Triangle* triangle){mTriangle = triangle;}
 
 };
 

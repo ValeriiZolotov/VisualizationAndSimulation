@@ -135,7 +135,8 @@ void OctahedronBall::init(GLint matrixUniform)
     initializeOpenGLFunctions();
     //mMatrix.scale(0.5f,0.5f,0.5f);
     //mMatrix.setToIdentity();
-    mMatrix.translate(3.f,8.f,-3.f);
+    mMatrix.translate(0.f,8.f,0.f);
+    //mMatrix.translate(1.5f,8.f,-1.5f);
     //mPosition.translate(-2.5f,2.5f,0.5f);
     //mPosition.translate(mPath.at(mitr).getXYZ().x(),mPath.at(mitr).getXYZ().y(),mPath.at(mitr).getXYZ().z());
     //Vertex Array Object - VAO
@@ -181,7 +182,7 @@ void OctahedronBall::draw()
     //    if(mitr>90 || mitr<=0)
     //        i=i*-1;
     //    move(0.000001f,0.f,0.0);
-    move(0.2f);
+    move(0.06f);
     glBindVertexArray( mVAO );
     //glUniformMatrix4fv( mMatrixUniform, 1, GL_FALSE, mMatrix.constData());
     glDrawArrays(GL_TRIANGLES, 0, mVertices.size());//mVertices.size());
@@ -227,53 +228,64 @@ void OctahedronBall::move(float dt)
     vec2 ballPosition = vec2(mMatrix.column(3).x(),mMatrix.column(3).z());
     //find triangel where the ball is placed
     int index = m_tr->findBall(ballPosition);
-    /*velocity vector*/
-    vec3 v = vec3(0.f,0.f,0.f);
+
     /*position vector*/
     vec3 ds = vec3(0.f,0.f,0.f);
     vec3 dv = vec3(0.f,0.f,0.f);
 
     if(index==-1)
     {
-        qDebug()<<"could not find ball"<<index;
+        //qDebug()<<"could not find ball"<<index;
     }
     else{
-        qDebug()<<"found on triangle "<<index;
-        vec3 trPoint = m_tr->getTriangles().at(index).m_c.getXYZ(); // point on the triangle
+
+        std::vector<Vertex> trV ={Vertex(m_tr->getTriangles().at(index).m_a.getXYZ(),vec3(1.f,0.f,0.f),vec2(0.f,0.f)),
+                                  Vertex(m_tr->getTriangles().at(index).m_b.getXYZ(),vec3(1.f,0.f,0.f),vec2(0.f,0.f)),
+                                  Vertex(m_tr->getTriangles().at(index).m_c.getXYZ(),vec3(1.f,0.f,0.f),vec2(0.f,0.f))};
+
+        mTriangle->defineTriangle(trV);
+
+        //qDebug()<<"found on triangle "<<index;
+        vec3 trPoint = m_tr->getTriangles().at(index).m_a.getXYZ(); // point on the triangle
         vec3 normal = m_tr->getTriangles().at(index).m_a.getNormals();
         /*acceleration vector*/
-        vec3 a = 9.8f*vec3(normal.x()*normal.y(),normal.y()*normal.y()-1,normal.z()*normal.y());
+        vec3 a = 5.0f*vec3(normal.x()*normal.y(),normal.y()*normal.y()-1,normal.z()*normal.y());
         a = a.normalized();
         dv = a*dt;
-        v= v+dv;
-        ds = v*dt;
+        mV= mV+dv;
+        ds = mV*dt;
         mMatrix.translate(ds);
 
         if(index!=mOldIndex)
         {
-            qDebug()<<"Ball has gone to the new triangle";
+            std::vector<Vertex> trV ={Vertex(m_tr->getTriangles().at(index).m_a.getXYZ(),vec3(1.f,0.f,0.f),vec2(0.f,0.f)),
+                                      Vertex(m_tr->getTriangles().at(index).m_b.getXYZ(),vec3(1.f,0.f,0.f),vec2(0.f,0.f)),
+                                      Vertex(m_tr->getTriangles().at(index).m_c.getXYZ(),vec3(1.f,0.f,0.f),vec2(0.f,0.f))};
+
+            mTriangle->defineTriangle(trV);
+            //qDebug()<<"Ball has gone to the new triangle";
             //x =old+new/abs(old+new);
-            vec3 oldNormal = m_tr->getTriangles().at(mOldIndex).m_a.getNormals();
+            mOldNormal = m_tr->getTriangles().at(mOldIndex).m_a.getNormals();
             //vec3 newNormal = m_tr->getTriangles().at(index).m_a.getNormals();
 
-            vec3 collisonNormal = vec3(oldNormal+normal).normalized();
+            vec3 collisonNormal = vec3(mOldNormal+normal).normalized();
             normal = collisonNormal;
+
             //distance from ball masscenter to surface
             vec3 distance{mMatrix.column(3).x(),mMatrix.column(3).y(),mMatrix.column(3).z()};
             distance = distance-trPoint;
             distance = normal*(distance*normal); // y= n*(y*n)
             float projection = distance.length();
             float r = mMatrix.column(0).x(); //raidus of ball
-            qDebug()<<r;
+
             vec3 dir = (distance*normal)/projection;
-            vec3 ds_proj = normal*(ds*normal);
             vec3 correction = (r-projection)*dir;//correction factor
 
-
             mMatrix.translate(normal*correction);
-            v = v-2.f*(vec3::dotProduct(v,collisonNormal))*collisonNormal;
-            //ds=v*dt+ds_proj;
-            //mMatrix.translate(ds);
+            mV = mV-2.f*(vec3::dotProduct(mV,collisonNormal))*collisonNormal;
+            ds=mV*dt;
+            mMatrix.translate(ds*correction);
+
         }
         mOldIndex = index;
         mOldNormal = normal;

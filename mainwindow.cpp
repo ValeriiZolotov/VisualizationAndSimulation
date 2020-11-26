@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "octahedronball.h"
 #include "renderwindow.h"
+#include "bsplinecurve.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), ui(new Ui::MainWindow)
@@ -67,6 +68,7 @@ void MainWindow::on_actionstart_simulation_triggered()
 {
 //    while(stopSimulation)
 //        static_cast<OctahedronBall*>(mRenderWindow->getObjectPool().at(2))->move(0.01f);
+    mRenderWindow->changeSpline();
 }
 
 void MainWindow::on_actionstop_simulation_triggered()

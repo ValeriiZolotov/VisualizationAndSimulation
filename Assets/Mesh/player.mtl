@@ -1,0 +1,64 @@
+newmtl player:Main_CharSG
+illum 4
+Kd 0.58 0.35 0.24
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.15 0.09 0.06
+Ns 5.35
+newmtl player:Main_CharSG1
+illum 4
+Kd 0.62 0.65 0.52
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.16 0.16 0.13
+Ns 98.00
+newmtl player:Main_CharSG2
+illum 4
+Kd 0.21 0.13 0.05
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.05 0.03 0.01
+Ns 3.90
+newmtl player:Main_CharSG5
+illum 4
+Kd 0.13 0.02 0.01
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.04 0.01 0.00
+Ns 5.35
+newmtl player:Main_CharSG7
+illum 4
+Kd 0.03 0.01 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.01 0.00 0.00
+Ns 0.00
+newmtl player:Main_CharSG8
+illum 4
+Kd 0.80 0.80 0.80
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.20 0.20 0.20
+Ns 23.00
+newmtl player:Main_CharSG10
+illum 4
+Kd 0.07 0.10 0.12
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.02 0.03 0.03
+Ns 54.25
+newmtl player:Main_CharSG12
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 54.25

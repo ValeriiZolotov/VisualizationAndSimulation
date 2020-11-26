@@ -8,13 +8,15 @@
 #include <vector>
 #include "visualobject.h"
 #include "camera.h"
-
+#include "boundingbox.h"
+#include "fsm.h"
+#include "light.h"
 
 
 class QOpenGLContext;
 class Shader;
 class MainWindow;
-
+class BoundingBox;
 ///This inherits from QWindow so we can put it inside a QWidget
 /// It has to inherit from QWindow, not a QWidget because we want to have
 /// access to the full OpenGL, and then we have to set the format for this window.
@@ -35,24 +37,47 @@ public:
     void error(const QString &msg);
 
     void setUpShader();
+    void setUpPhongShader();
     std::vector<VisualObject*>&getObjectPool(){return mObjectPool;}
 
-private slots:
+    void playerControl(QKeyEvent* event);
+    void setPointsHeight(std::vector<vec3>& points);
+
+public slots:
     void render();
+    int checkCollision();
+    void changeSpline();
 
 private:
+
     void init();
-
     void startOpenGLDebugger();
+    void setBoxVector();
 
+    std::vector<vec3> mControllPoints;
     QOpenGLContext *mContext;
     bool mInitialized;
 
     Shader *mShaderProgram;
+    Shader *mPhShaderProgram;
     GLint  mMatrixUniform;
     GLint  mPMatrixUniform;
     GLint  mVMatrixUniform;
+    GLint  mPhMatrixUniform;
+    GLint  mPhPMatrixUniform;
+    GLint  mPhVMatrixUniform;
 
+    GLint mAmbientIntensityUniform{-1};
+    GLint mAmbientColourUniform{-1};
+    GLint mDiffuseIntensityUniform{-1};
+    GLint mLightPositionUniform{-1};
+    GLint mCameraPositionUniform{-1};
+    GLint mSpecularIntensityUniform{-1};
+    GLint mSpecularExponentUniform{-1};
+    GLint mObjectColor{-1};
+    Light* light;
+
+    std::vector<BoundingBox*> mBBoxes;
     GLuint mVAO;
     GLuint mVBO;
 
@@ -70,7 +95,9 @@ private:
     std::vector<VisualObject*> mObjectPool;
     float mAspectRation{0.f};
     Camera* mCamera;
-
+    bool sendM{false};
+    QString message{"Custom message"};
+    FSM* mFSM;
 
 
 protected:

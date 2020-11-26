@@ -1,9 +1,6 @@
 #include "bsplinecurve.h"
 
-BSplineCurve::BSplineCurve()
-{
 
-}
 
 vec3 BSplineCurve:: deBoor(int my, float x)
 {
@@ -104,7 +101,7 @@ void BSplineCurve::evaluateBSpline()
     {
         x += 0.05f;
         vertex = deBoor(findKnotInterval(x),x);
-        qDebug()<<vertex;
+        //qDebug()<<vertex;
         mVertices.push_back(Vertex(vertex,vec3(1.f,0.f,0.f),vec2(0.f,0.f)));
 
     }
@@ -122,16 +119,29 @@ vec3 BSplineCurve::deBoor(int k,int degree, int i, double x, std::vector<float>*
 }
 
 void BSplineCurve::draw()
-{
+{   
     glBindVertexArray( mVAO );
     glPointSize(10.f);
     glDrawArrays(GL_POINTS, 0, mVertices.size());
-
-
     glDrawArrays(GL_LINE_STRIP, 0, mVertices.size());
 }
 
 BSplineCurve::~BSplineCurve()
 {
 
+}
+
+void BSplineCurve::reevaluetaBSpline(std::vector<ControlPoint>& controlPoints, int degree)
+{
+    mVertices.clear();
+    mKnots.clear();
+    mKnotsNumber = 0;
+    mControllPoints.clear();
+    mControllPoints= controlPoints;
+    defineKnots();
+    evaluateBSpline();
+
+    glDeleteVertexArrays( 1, &mVAO );
+    glDeleteBuffers( 1, &mVBO );
+    init(mMatrixUniform);
 }
